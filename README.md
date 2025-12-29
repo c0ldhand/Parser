@@ -100,7 +100,7 @@ FastAPITodoBackend/
 │   ├── websocket/
 │   │   └── connection_manager.py   # ConnectionManager для управления WS соединениями
 │   └── config.py                   # Pydantic Settings конфигурация
-├── Dockerfile                       # Docker образ приложения
+├── Dockerfile                      # Docker образ приложения
 ├── docker-compose.yml              # Docker Compose конфиг (app + PostgreSQL)
 ├── requirements.txt                # Python зависимости
 ├── .env.example                    # Пример переменных окружения
