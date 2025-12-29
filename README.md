@@ -53,23 +53,7 @@ TODO API + WebSocket + Фоновая задача
    git clone https://github.com/c0ldhand/Parser.git
    ```
 
-2. **Создать файл `.env` из примера:**
-
-   ```bash
-   cp .env.example .env
-   ```
-
-   По умолчанию содержимое:
-
-   ```
-    PG_HOST=pg_db
-    PG_USER=postgres
-    PG_PASSWORD=postgres
-    PG_DB=todo_list_db
-    PG_PORT=5432
-   ```
-
-3. **Запустить приложение с помощью Docker Compose:**
+2. **Запустить приложение с помощью Docker Compose:**
    ```bash
    docker-compose up -d
    ```
