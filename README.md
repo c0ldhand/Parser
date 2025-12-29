@@ -61,34 +61,118 @@ TODO API + WebSocket + Фоновая задача
 ## Структура проекта
 
 ```
-FastAPITodoBackend/
-├── src/
+Parser/
+├── app/
 │   ├── api/
-│   │   ├── main.py                 # FastAPI приложение с подключением роутеров
-│   │   └── endpoints/
-│   │       ├── tasks_endpoints.py  # REST API эндпоинты для задач
-│   │       ├── ws_endpoints.py     # WebSocket эндпоинт
-│   │       └── background_task_endpoints.py
+│   │   ├── background_task_endpoints.py
+│   │   │   └── HTTP-эндпоинт для ручного запуска фоновой задачи
+│   │   │       обновления курсов валют (POST /tasks/run).
+│   │   │
+│   │   ├── currency_endpoints.py
+│   │   │   └── REST API для работы с курсами валют:
+│   │   │       получение списка, создание, обновление и удаление.
+│   │   │
+│   │   ├── websocket_endpoints.py
+│   │   │   └── WebSocket эндпоинт (/ws/currencies)
+│   │   │       для уведомлений клиентов в реальном времени.
+│   │   │
+│   │   └── nats_test.py
+│   │       └── Тестовый эндпоинт для отправки сообщений
+│   │           в NATS (эмуляция внешнего сервиса).
+│   │
 │   ├── database/
 │   │   ├── models/
-│   │   │   ├── base.py             # Declarative base для SQLAlchemy
-│   │   │   └── task.py             # Модель Task (UUID, title, description, completed, created_at)
-│   │   ├── session.py              # Async engine и sessionmaker
-│   │   └── migrations/             # Alembic миграции
-│   │       ├── env.py
-│   │       ├── alembic.ini
-│   │       └── versions/
+│   │   │   └── currency.py
+│   │   │       └── ORM-модель CurrencyRate
+│   │   │           (id, currency, rate, timestamp).
+│   │   │
+│   │   ├── init_db.py
+│   │   │   └── Инициализация базы данных при старте приложения
+│   │   │       (создание таблиц).
+│   │   │
+│   │   └── session.py
+│   │       └── Асинхронный engine и sessionmaker SQLAlchemy.
+│   │
+│   ├── nats/
+│   │   ├── client.py
+│   │   │   └── Клиент NATS:
+│   │   │       подключение, подписка, публикация сообщений
+│   │   │       и обработка входящих событий.
+│   │   │
+│   │   └── nats_events.py
+│   │       └── Вспомогательные функции для публикации
+│   │           событий изменения курсов валют в NATS.
+│   │
 │   ├── schemas/
-│   │   ├── task.py                 # Pydantic схемы: TaskCreate, TaskUpdate, TaskOut
-│   │   └── ws_events.py            # WebSocket события: TaskEventType enum, TaskEvent
-│   ├── websocket/
-│   │   └── connection_manager.py   # ConnectionManager для управления WS соединениями
-│   └── config.py                   # Pydantic Settings конфигурация
-├── Dockerfile                      # Docker образ приложения
-├── docker-compose.yml              # Docker Compose конфиг (app + PostgreSQL)
-├── requirements.txt                # Python зависимости
-├── .env.example                    # Пример переменных окружения
-└── README.md                       # Этот файл
+│   │   ├── currency.py
+│   │   │   └── Pydantic-схемы:
+│   │   │       CurrencyRateCreate,
+│   │   │       CurrencyRateUpdate,
+│   │   │       CurrencyRateOut.
+│   │   │
+│   │   └── ws_events.py
+│   │       └── WebSocket-события:
+│   │           CurrencyEventType (enum),
+│   │           CurrencyEvent.
+│   │
+│   ├── tasks/
+│   │   └── cbr_rates.py
+│   │       └── Фоновая задача:
+│   │           - HTTP-запрос к API ЦБ РФ
+│   │           - парсинг XML
+│   │           - обновление базы данных
+│   │           - публикация событий в NATS
+│   │           - периодический запуск через asyncio.
+│   │
+│   ├── ws/
+│   │   └── connection_manager.py
+│   │       └── Менеджер WebSocket-соединений
+│   │           (подключение, отключение, broadcast сообщений).
+│   │
+│   ├── config.py
+│   │   └── Конфигурация приложения
+│   │       (Pydantic Settings, переменные окружения).
+│   │
+│   └── main.py
+│       └── Точка входа FastAPI-приложения:
+│           - lifespan
+│           - запуск фоновой задачи
+│           - подключение NATS
+│           - регистрация роутеров.
+│
+├── data/
+│   └── currencies.db
+│       └── Файл базы данных SQLite
+│           (создаётся автоматически).
+│
+├── venv/
+│   └── Виртуальное окружение Python (не используется в Docker).
+│
+│
+├── .env.example
+│   └── Пример файла переменных окружения.
+│
+├── .dockerignore
+│   └── Исключения для Docker.
+│
+├── .gitignore
+│   └── Исключения для Git
+│       (venv, .env, база данных и т.д.).
+│
+├── docker-compose.yml
+│   └── Docker Compose конфигурация
+│       (FastAPI-приложение + NATS).
+│
+├── Dockerfile
+│   └── Docker-образ FastAPI-приложения.
+│
+├── requirements.txt
+│   └── Python-зависимости проекта.
+│
+└── README.md
+│   └── Описание проекта, инструкция по запуску,
+│       документация API и примеры работы WebSocket и NATS.
+                     # Этот файл
 ```
 
 Swagger
