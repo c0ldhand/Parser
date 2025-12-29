@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+.env.*
+.git
+.vscode
+venv/
+build/
+dist/
+
+# local data
+data/
